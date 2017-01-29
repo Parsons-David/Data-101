@@ -10,7 +10,18 @@ cycleT <- cpu$syct
 channelMin <- cpu$chmin
 channelMax <- cpu$chmax
 cache <- cpu$cach
+# Factor of the occurance of each cache Size
+cacheRanges <- as.factor(cache)
 perf <- cpu$perf
+
+# Box Plots
+
+perfBox <- boxplot(perf, pch = 19)
+
+# End Box Plots
+
+
+# Scatter Plots
 
 # Cyle Time vs Performance of CPUs - shows that maybe cycle time isn't the biggest contributing factor for performance
 cycleOnPerf <- plot(cycleT, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", pch = 19)
@@ -20,6 +31,14 @@ memMinOnPerf <- plot(memMin, perf, main="CPU Memory (min) vs. Performance", xlab
 memMaxOnPerf <- plot(memMax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
 
 cacheOnPerf <- plot(cache, perf, main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+# End Scatter Plots
+
+# Bar Plots
+
+barplot(cacheRanges, main = "Cache Size Distribution", xlab = "Size of Cache in KB")
+
+# End Bar Plots
 
 str(cpu)
 # Prints Summary of Data
