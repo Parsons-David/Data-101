@@ -3,8 +3,8 @@ title: "CPU Perforance Anaylsis"
 author: "David Parsons"
 date: "January 29, 2017"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -36,6 +36,25 @@ estperf
 ## Investigation
 
 The following is the step by step thought process I followed in order to achive conclusions about this dataset.
+
+## Features on Performance
+
+I started by plotting every "feature" against performance in order to determine if one feature has a sustantial effect on improving performance.
+
+```{r Perf Plots, echo=FALSE}
+
+perf <- cpu$perf
+
+cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", pch = 19)
+
+memMinOnPerf <- plot(cpu$mmin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+
+```
 
 ### Theory 1 - Cache Size
 
