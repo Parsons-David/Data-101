@@ -36,13 +36,23 @@ cacheOnPerf <- plot(cache, perf, main="CPU Cache vs. Performance", xlab = "Cache
 
 # Bar Plots
 
-barplot(cacheRanges, main = "Cache Size Distribution", xlab = "Size of Cache in KB")
+barplot(table(cacheRanges), main = "Cache Size Distribution", xlab = "Size of Cache in KB")
 
 # End Bar Plots
+
+# Frame without cache bottle neck
+bottleFree <- cpu[cpu$cach != 0, ]
+
+botCacheOnPef <- plot(bottleFree$cach, bottleFree$perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+
+botPefBox <- boxplot(bottleFree$perf, pch = 19)
+# End Frame without bottle neck
 
 str(cpu)
 # Prints Summary of Data
 summary(cpu)
+summary(bottleFree)
 # Creates a simple plot of cache vs performance
 plot(cpu$cach, cpu$perf)
 plot(cpu$syct, cpu$perf)
