@@ -1,0 +1,52 @@
+---
+title: "CPU Perforance Anaylsis"
+author: "David Parsons"
+date: "January 29, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Insipiration
+
+Central Processing Units (CPUs) are central to any computing system. They perform every single operation, calculation, or any other action required to keep the "Computer" as a whole running. So it's important to understand what CPU features and architecures equate to the best performance.
+
+## The Data
+
+```{r cpu}
+cpu <- read.csv("cpus.csv")
+summary(cpu)
+```
+
+Data Collected from:
+
+sysct
+mmin
+mmax
+cach
+chmin
+chmax
+perf
+estperf
+
+## Investigation
+
+The following is the step by step thought process I followed in order to achive conclusions about this dataset.
+
+### Theory 1 - Cache Size
+
+CPU Cache can be a very handy feature for improving efficiency and speed. Cache provides the CPU with quick, local, and reliable memory so that it doesn't have to waste calculations trying to locate data in foriegn memory spaces.
+
+In theory more cache should equate to better performance.
+
+Below is a plot of cache Size in KB (x-axis) vs the measured performance of a CPU with that cache size (y-axis).
+
+```{r cach plot, echo=TRUE}
+
+cacheOnPerf <- plot(cpu$cach, cpu$perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+
+```
