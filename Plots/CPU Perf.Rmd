@@ -22,16 +22,15 @@ cpu <- read.csv("cpus.csv")
 summary(cpu)
 ```
 
-Data Collected from:
+Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random datasets. This dataset had been :
 
-sysct
-mmin
-mmax
-cach
-chmin
-chmax
-perf
-estperf
+    sysct - cycle time in nanoseconds
+    mmin - minimum main memory in kilobytes
+    mmax - maximum main memory in kilobytes
+    cach - cache size in kilobytes
+    chmin - minimum number of channels
+    chmax - maximum number of channels
+    perf - benchmark score
 
 ## Investigation
 
@@ -45,14 +44,13 @@ I started by plotting every "feature" against performance in order to determine 
 
 perf <- cpu$perf
 
-cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", pch = 19)
+cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance")
 
-memMinOnPerf <- plot(cpu$mmin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+memMinOnPerf <- plot(cpu$mmin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance")
 
-memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance")
 
-cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
-
+cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance")
 
 ```
 
@@ -65,7 +63,5 @@ In theory more cache should equate to better performance.
 Below is a plot of cache Size in KB (x-axis) vs the measured performance of a CPU with that cache size (y-axis).
 
 ```{r cach plot, echo=TRUE}
-
-cacheOnPerf <- plot(cpu$cach, cpu$perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
-
+cacheOnPerf <- plot(cpu$cach, cpu$perf, main = "CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
 ```
