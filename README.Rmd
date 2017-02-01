@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Projects
 
-### [CPU Performance](http://parsonssoftware.me/CPU_Perf.html)
+### [CPU Performance](http://parsonssoftware.me/data/CPU_Perf.html)
 
 #### Exploration into CPU "features" and how they effect performance.
 
