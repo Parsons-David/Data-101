@@ -1,0 +1,22 @@
+---
+title: "Data Exploration with R"
+author: "David Parsons"
+date: "February 1, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Intro
+
+#### Homepage for all Data Exploration Projects using R.
+
+#### Projects created for [Rutgers University CS 142](http://data101.cs.rutgers.edu/), with Professor Imielinski.
+
+## Projects
+
+### [CPU Performance](http://parsonssoftware.me/CPU_Perf.html)
+
+#### Exploration into CPU "features" and how they effect performance.
