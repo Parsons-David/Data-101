@@ -6,7 +6,7 @@ summary(cpu)
 
 perf <- cpu$perf
 
-cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", xlim = rev(range(cpu$syct)), col = "blue")
+cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Nanoseconds", ylab = "Benchmark Performance", xlim = rev(range(cpu$syct)), col = "blue")
 
 memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", col = "red")
 
