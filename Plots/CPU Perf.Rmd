@@ -22,7 +22,9 @@ cpu <- read.csv("cpus.csv")
 summary(cpu)
 ```
 
-Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random datasets. This dataset had been :
+Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random datasets. This dataset had been collected as a part of a research study on extimating CPU performance.
+
+Each CPU had the following properties:
 
     sysct - cycle time in nanoseconds
     mmin - minimum main memory in kilobytes
@@ -44,19 +46,38 @@ I started by plotting every "feature" against performance in order to determine 
 
 perf <- cpu$perf
 
-cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance")
+cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", xlim = rev(range(cpu$syct)))
+
+memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance")
 
 memMinOnPerf <- plot(cpu$mmin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance")
 
-memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance")
+chanMaxOnPerf <- plot(cpu$chmax, perf, main="Channels (max) vs. Performance", xlab = "Max Channels", ylab = "Benchmark Performance")
+
+chanMinOnPerf <- plot(cpu$chmin, perf, main="Channels (min) vs. Performance", xlab = "Min Channels", ylab = "Benchmark Performance")
 
 cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance")
 
 ```
 
-### Theory 1 - Cache Size
+### Observation 1 - Cycle Time
 
-CPU Cache can be a very handy feature for improving efficiency and speed. Cache provides the CPU with quick, local, and reliable memory so that it doesn't have to waste calculations trying to locate data in foriegn memory spaces.
+Clear coorelation between a decrease in cycle time and an increase in performance.
+
+But there is still something else that improve's a CPU's performance.
+
+    - CPU's with the same minimal cycle time had drastically different benchmark scores.
+
+### Observation 2 - Main Memory
+
+It appears that having to little memory can create a bottleneck for a CPU's performance.
+
+    - No CPU's with that had a minimum of 6000 KB of memory during the benchmark scored better than 500.
+    
+But an increase in memory only coorelates to an increase in performance to a certain extent.
+
+    - Some CPU's performed worse than other CPU's with double the amount of minimum memory.
+
 
 In theory more cache should equate to better performance.
 
