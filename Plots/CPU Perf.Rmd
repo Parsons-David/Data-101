@@ -1,5 +1,5 @@
 ---
-title: "CPU Perforance Anaylsis"
+title: "CPU Performance Anaylsis"
 author: "David Parsons"
 date: "January 29, 2017"
 output:
