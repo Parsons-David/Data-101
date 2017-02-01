@@ -38,13 +38,13 @@ Each CPU had the following properties:
 
 ## Investigation
 
-The following is the step by step thought process I followed in order to achive conclusions about this dataset.
+The following are the step by step thought process I followed in order to achive conclusions about this dataset.
 
-## Features on Performance
+### Features on Performance
 
 I started by plotting every "feature" against performance in order to determine if one feature has a sustantial effect on improving performance.
 
-```{r Perf Plots, echo=FALSE}
+```{r Performance Plots}
 perf <- cpu$perf
 
 cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", xlim = rev(range(cpu$syct)), col = "blue")
@@ -69,7 +69,7 @@ But there is still something else that improve's a CPU's performance.
 
     - CPU's with the same minimal cycle time had drastically different benchmark scores.
 
-```{r cycle time bar}
+```{r Cycle Time}
 cycleTBox <- boxplot(cpu$syct, data = cpu, xlab = "Cycle Time in Nanoseconds",col = "lightblue", medcol = "orange", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
 upperNinty = as.numeric(quantile(cpu$perf, 0.9))
@@ -88,7 +88,7 @@ But an increase in memory only coorelates to an increase in performance to a cer
 
     - Some CPU performed worse than another CPU with double the amount of minimum memory.
 
-```{r mem bar}
+```{r Memory}
 
 cycleTBox <- boxplot(cpu$mmax, data = cpu, xlab = "Memory (max) in Kilobytes",col = "lightgreen", medcol = "blue", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
@@ -100,14 +100,27 @@ ggplot(cpu,aes(mmax, fill = (perf > upperNinty)))+geom_density()+geom_density()+
 
 ### Observation 3 - Cache Size
 
-In theory more cache should equate to better performance.
+In theory more cache should equate to better performance, but
 
-Below is a plot of cache Size in KB (x-axis) vs the measured performance of a CPU with that cache size (y-axis).
+    - Some CPUs with 0 cache scored in the 90th percentile.
 
-```{r cach plot, echo=TRUE}
+```{r Cache}
 cacheBox <- boxplot(cpu$cach, data = cpu, xlab = "Cache in Kilobytes",col = "grey", medcol = "red", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
 upperNinty = as.numeric(quantile(cpu$perf, 0.9))
 
 ggplot(cpu,aes(cach, fill = (perf > upperNinty)))+geom_density()+geom_density()+scale_x_continuous(name = "Cache in Kilobytes")+scale_y_continuous(name = "Density")
 ```
+
+### Conlusion & Next Steps
+There isn't a particular "feature" that seemed to provide THE best performance increase.
+
+A heat map might help to demonstrate what combination of features is the most benefical for increasing performance.
+
+It's also very possible other factors/"features" are effecting performance architecture, tempurature, power draw, cores, etc.
+
+Price to Performance might also be an interesting metric and how it relates to certain "features".
+
+The fastest cycle time was 17 nanoseconds, which equates to about 58 MHz or 0.06 GHz, which is very slow compared to modern CPUs. So there may be other bottlenecks with these CPUs.
+
+It'd be interesting to replicate this analysis on modern day consumer CPUs.
