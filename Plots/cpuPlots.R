@@ -2,63 +2,36 @@ library(ggplot2)
 # Read's data from csv file in local directory, and places it in a data frame
 cpu <- read.csv("cpus.csv")
 # Prints the structure of the data frame
+summary(cpu)
 
-# Sets Variables for readability
-memMin <- cpu$mmin
-memMax <- cpu$mmax
-cycleT <- cpu$syct
-channelMin <- cpu$chmin
-channelMax <- cpu$chmax
-cache <- cpu$cach
-# Factor of the occurance of each cache Size
-cacheRanges <- as.factor(cache)
 perf <- cpu$perf
 
-# Box Plots
+cycleOnPerf <- plot(cpu$syct, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", xlim = rev(range(cpu$syct)), col = "blue")
 
-perfBox <- boxplot(perf, pch = 19)
+memMaxOnPerf <- plot(cpu$mmax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", col = "red")
 
-# End Box Plots
+memMinOnPerf <- plot(cpu$mmin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance", col = "red")
 
+chanMaxOnPerf <- plot(cpu$chmax, perf, main="Channels (max) vs. Performance", xlab = "Max Channels", ylab = "Benchmark Performance", col = "darkgreen")
 
-# Scatter Plots
+chanMinOnPerf <- plot(cpu$chmin, perf, main="Channels (min) vs. Performance", xlab = "Min Channels", ylab = "Benchmark Performance", col = "darkgreen")
 
-# Cyle Time vs Performance of CPUs - shows that maybe cycle time isn't the biggest contributing factor for performance
-cycleOnPerf <- plot(cycleT, perf, main="CPU Cycle Time vs. Performance", xlab = "Cycle Time in Seconds", ylab = "Benchmark Performance", pch = 19)
+cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", col = "orange")
 
-memMinOnPerf <- plot(memMin, perf, main="CPU Memory (min) vs. Performance", xlab = "Minimum Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+cycleTBox <- boxplot(cpu$syct, data = cpu, xlab = "Cycle Time in Nanoseconds",col = "lightblue", medcol = "orange", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
-memMaxOnPerf <- plot(memMax, perf, main="CPU Memory (max) vs. Performance", xlab = "Max Memory in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+upperNinty = as.numeric(quantile(cpu$perf, 0.9))
 
-cacheOnPerf <- plot(cache, perf, main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
+ggplot(cpu,aes(syct, fill = (perf > upperNinty)))+geom_density()+scale_x_continuous(name = "Cycle Time in Nanoseconds")+scale_y_continuous(name = "Density")
 
-# End Scatter Plots
+cycleTBox <- boxplot(cpu$mmax, data = cpu, xlab = "Memory (max) in Kilobytes",col = "lightgreen", medcol = "blue", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
-# Bar Plots
+upperNinty = as.numeric(quantile(cpu$perf, 0.9))
 
-barplot(table(cacheRanges), main = "Cache Size Distribution", xlab = "Size of Cache in KB")
+ggplot(cpu,aes(mmax, fill = (perf > upperNinty)))+geom_density()+geom_density()+scale_x_continuous(name = "Memory (max) in Kilobytes")+scale_y_continuous(name = "Density")
 
-# End Bar Plots
+cacheBox <- boxplot(cpu$cach, data = cpu, xlab = "Cache in Kilobytes",col = "grey", medcol = "red", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
 
-# Frame without cache bottle neck
-bottleFree <- cpu[cpu$cach != 0, ]
+upperNinty = as.numeric(quantile(cpu$perf, 0.9))
 
-botCacheOnPef <- plot(bottleFree$cach, bottleFree$perf,main="CPU Cache vs. Performance", xlab = "Cache in Kilobytes", ylab = "Benchmark Performance", pch = 19)
-
-
-botPefBox <- boxplot(bottleFree$perf, pch = 19)
-# End Frame without bottle neck
-
-str(cpu)
-# Prints Summary of Data
-summary(cpu)
-summary(bottleFree)
-# Creates a simple plot of cache vs performance
-plot(cpu$cach, cpu$perf)
-plot(cpu$syct, cpu$perf)
-
-boxplot(cpu$perf)
-
-cpu_matrix <- data.matrix(cpu)
-
-cpu_heatmap <- heatmap(cpu_matrix, Rowv=NA, Colv=NA, col = cm.colors(256), scale="column", margins=c(5,10))
+ggplot(cpu,aes(cach, fill = (perf > upperNinty)))+geom_density()+geom_density()+scale_x_continuous(name = "Cache in Kilobytes")+scale_y_continuous(name = "Density")
