@@ -1,7 +1,7 @@
 ---
 title: "CPU Performance Anaylsis"
 author: "David Parsons"
-date: "January 29, 2017"
+date: "Februrary 4th, 2017"
 output:
   html_document: default
   pdf_document: default
@@ -12,19 +12,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 ```
 
+## Background
+
+My name is David Parsons, I am currently a Junior at Rutgers University majoring in Computer Science. The intent of this project was to expose my self to data exploration/analysis and the R programming language. 
+
 ## Insipiration
 
-Central Processing Units (CPUs) are central to any computing system. They perform every single operation, calculation, or any other action required to keep the "Computer" as a whole running. So it's important to understand what CPU features and architecures equate to the best performance.
+Right now one of this biggest technological challenges facing society is the ever widening gap between the amount of data that we create and our ability to process it. Our ability process data quickly and efficiently hinges upon the Central Processing Units (CPUs) of the computing system we use. CPUs perform every single operation, calculation, and comparison that is required in for data processing. As the rate at which data in created is increases, it's important to understand what CPU features and architectures equate to the best performance so that our processing rates can keep pace with data creation.
 
 ## The Data
 
-```{r cpu}
+Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random data sets. This data set had been curatedd as a part of a research study on estimating CPU performance.
 
+```{r cpu}
 cpu <- read.csv("cpus.csv")
 summary(cpu)
 ```
-
-Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random datasets. This dataset had been collected as a part of a research study on extimating CPU performance.
 
 Each CPU had the following properties:
 
@@ -36,13 +39,15 @@ Each CPU had the following properties:
     chmax - maximum number of channels
     perf - benchmark score
 
+One thing I did notice at first about this data set was that I didn't recognize most of the manufacture names. I also didn't notice any Intel chips, which has surprising since Intel currently owns a huge portion of the consumer CPU market. This lead me to believe that these CPUs might be server chips and/or dated technology.
+
 ## Investigation
 
-The following are the step by step thought process I followed in order to achive conclusions about this dataset.
+The following is the step by step thought process I followed in exploring this data set and arriving at the conclusion I did.
 
 ### Features on Performance
 
-I started by plotting every "feature" against performance in order to determine if one feature has a sustantial effect on improving performance.
+I started by plotting every "feature" against performance in order to determine if any features had obvious substantial impacts performance.
 
 ```{r Performance Plots}
 perf <- cpu$perf
@@ -63,11 +68,12 @@ cacheOnPerf <- plot(cpu$cach, perf,main="CPU Cache vs. Performance", xlab = "Cac
 
 ### Observation 1 - Cycle Time
 
-Clear coorelation between a decrease in cycle time and an increase in performance.
+There is a clear correlation between a decrease in cycle time and an increase in performance.
 
-But there is still something else that improve's a CPU's performance.
+This may seem obvious to some, since lower "cycle times" (a cycle is basically how long is takes the CPU to perform one operation) equate to more computations in less time (higher frequency).
 
-    - CPU's with the same minimal cycle time had drastically different benchmark scores.
+The CPUs scoring in the ninetieth percentile on the performance benchmark were among the lowest cycle times.
+
 
 ```{r Cycle Time}
 cycleTBox <- boxplot(cpu$syct, data = cpu, xlab = "Cycle Time in Nanoseconds",col = "lightblue", medcol = "orange", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
@@ -78,16 +84,21 @@ ggplot(cpu,aes(syct, fill = (perf > upperNinty)))+geom_density()+scale_x_continu
 
 ```
 
+
+But faster cycle times do not directly equate to the best performance.
+
+    - CPU's with the same minimal cycle time had drastically different benchmark scores.
+    
+While cycle time is clearly important to performance it alone does not define a chips performance.
+
 ### Observation 2 - Main Memory
 
-It appears that having to little memory can create a bottleneck for a CPU's performance.
+It appears that it's beneficial to have a much memory as you can which again, isn't surprising. The top 5 CPUs in the performance metric had the most amount of main memory available.
+
+Having to little memory can create a bottleneck for a CPU's performance.
 
     - No CPU that had a minimum of 6000 KB of memory during the benchmark scored better than 500.
     
-But an increase in memory only coorelates to an increase in performance to a certain extent.
-
-    - Some CPU performed worse than another CPU with double the amount of minimum memory.
-
 ```{r Memory}
 
 cycleTBox <- boxplot(cpu$mmax, data = cpu, xlab = "Memory (max) in Kilobytes",col = "lightgreen", medcol = "blue", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
@@ -98,11 +109,19 @@ ggplot(cpu,aes(mmax, fill = (perf > upperNinty)))+geom_density()+geom_density()+
 
 ```
 
+But apart from the few "outliers", an increase in memory only correlates to an increase in performance to a certain extent.
+
+    - Some CPUs performed worse than other CPUs with double the amount of memory.
+    - Some CPus in the 90th percentile had 0 memory.
+
 ### Observation 3 - Cache Size
+
+The story here seems to be quite similar to the memory and again isn't surprising, especially since cache is just a type of memory (albeit functionally quite different from main memory).
 
 In theory more cache should equate to better performance, but
 
     - Some CPUs with 0 cache scored in the 90th percentile.
+    - Top CPUs outperformed other CPUs with more cache
 
 ```{r Cache}
 cacheBox <- boxplot(cpu$cach, data = cpu, xlab = "Cache in Kilobytes",col = "grey", medcol = "red", bg = "blue", range = 4, cex.main=2,cex.lab=1.5, horizontal = TRUE, varwidth = TRUE, pch = 19)
@@ -112,15 +131,32 @@ upperNinty = as.numeric(quantile(cpu$perf, 0.9))
 ggplot(cpu,aes(cach, fill = (perf > upperNinty)))+geom_density()+geom_density()+scale_x_continuous(name = "Cache in Kilobytes")+scale_y_continuous(name = "Density")
 ```
 
+The extent to which cache improves performance appears to be much sharper than the level seen with main memory.
+
 ### Conlusion & Next Steps
-There isn't a particular "feature" that seemed to provide THE best performance increase.
 
-A heat map might help to demonstrate what combination of features is the most benefical for increasing performance.
+There isn't a particular "feature" that seemed to provide THE best performance increase. None of these features had such a drastic effect on performance that it stood out.
 
-It's also very possible other factors/"features" are effecting performance architecture, tempurature, power draw, cores, etc.
+But of the 3 observations, the amount Main Memory appears to be the most restrictive on performance.
 
-Price to Performance might also be an interesting metric and how it relates to certain "features".
+A heat map might help to demonstrate what combination of features is the most beneficial for increasing performance.
 
-The fastest cycle time was 17 nanoseconds, which equates to about 58 MHz or 0.06 GHz, which is very slow compared to modern CPUs. So there may be other bottlenecks with these CPUs.
+It's also very possible other factors/"features" are effecting performance like CPU architecture, temperature, power draw, compute cores, etc. A performance metric that takes into account these other features might be a more accurate depiction of a "good" CPU.
 
-It'd be interesting to replicate this analysis on modern day consumer CPUs.
+Price to Performance might also be an interesting metric to investigate and how it relates to the value and trade-offs associated with certain "features".
+
+The fastest cycle time was 17 nanoseconds, which equates to about 58 MHz or 0.06 GHz, which is very slow compared to modern CPUs. So there may be other bottlenecks with these CPUs, and it'd be interesting to replicate this analysis on modern consumer CPUs.
+
+## Notes and Comments
+
+This was my first time doing any sort of analysis like this and it was quite an interesting experience. While I found the coorelations that I found interesting, I was constantly thinking about the fact that they were just merely correlations.
+
+The conclusions I jumped to, didn't always feel sound. I think that is something that might just be inherent to data analysis, but the feeling was amplified by my lack of experience.
+
+It should be interesting to see how the way in which I go about finding and making conclusions evolves as I work with more and larger data sets.
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/?q=blog)
