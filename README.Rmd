@@ -9,18 +9,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+[My Personal Site](../index.html)
+
+[My Personal Projects Homepage](../projects.html)
+
 ## Intro
 
 #### Home of all my Data Exploration Projects using R.
 
-#### Projects created for [Rutgers University CS 142](http://data101.cs.rutgers.edu/), with Professor Imielinski.
+#### Projects created for [Rutgers University CS 142](http://data101.cs.rutgers.edu/) with Professor Imielinski.
 
 ## Projects
 
-### [CPU Performance](http://parsonssoftware.me/data/CPU_Perf.html)
+### [CPU Performance](CPU_Perf.html)
 
-#### Exploration into CPU "features" and how they effect performance.
+Exploration into CPU "features" and how they effect performance.
 
-## [Github Repo](https://github.com/Parsons-David/Data-Exploration)
+[Github Repo](https://github.com/Parsons-David/Data-Exploration) - Repository of all code, data, and other resources with to create this homepage and all of the projects.
 
-### Repository of all code, data, and other resources with to create this homepage and all of the projects.
+[My Personal Site](../index.html)
