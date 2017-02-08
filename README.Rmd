@@ -9,21 +9,33 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+---
+
 [My Personal Site](../index.html)
 
 [My Personal Projects Homepage](../projects.html)
 
-## Intro
+---
+
+## Introduction
 
 #### Home of all my Data Exploration Projects using R.
 
 #### Projects created for [Rutgers University CS 142](http://data101.cs.rutgers.edu/) with Professor Imielinski.
+
+---
 
 ## Projects
 
 ### [CPU Performance](CPU_Perf.html)
 
 Exploration into CPU "features" and how they effect performance.
+
+### [Census Investigation](Census_Investigation.html)
+
+Attempt at pattern Recognition using Heat Maps & Various other plots.
+
+---
 
 [Github Repo](https://github.com/Parsons-David/Data-Exploration) - Repository of all code, data, and other resources with to create this homepage and all of the projects.
 
