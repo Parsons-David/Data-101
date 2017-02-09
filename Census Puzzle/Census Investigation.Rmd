@@ -143,7 +143,7 @@ But otherwise, these graphs revealed revealed very little to me about any advant
 
 My next idea was to plot Net Capital Gains & Age for every country using a scatter plot (Net Capital vs Age).
 
-```{R Country Net Capital Scatters, eval=FALSE, include=FALSE}
+```{R Country Net Capital Scatters, eval = FALSE}
 plotScat <- function(e){
   subCen <- subset(census, NATIVE == e)
   
@@ -157,7 +157,7 @@ for(country in levels(census$NATIVE)){
 }
 ```
 
-There we a lot of graphs created, although some are show below, here are the key take a ways:
+There we a lot of graphs created, and I've yet to figure out how to only include ceratin plots using Rmd. But here are the key take a ways:
 
     - United States
         - Almost no Net Loss 
@@ -180,7 +180,7 @@ But in my defense I found these heat maps very interesting for detecting little 
 
 Most correlations were easily explained by outliers, but some were still somewhat interesting.
 
-```{R Heat Maps, eval=FALSE, include=FALSE}
+```{R Heat Maps, eval=FALSE}
 
 heatPlot <- function(yAxis, xAxis, heat) {
   subCen <- subset(census)#, CAPITALNET > 200000)
@@ -203,6 +203,8 @@ for(var in cats){
   }
 }
 ```
+
+Again there were a ton graphs created, the source code for this project is on my [Github](https://github.com/Parsons-David/Data-Exploration) so you can check it out there and run it yourself if you want to see any of these graphs. But here are the key take a ways:
 
     - France
         - France & Fire - Very high Net Capital
