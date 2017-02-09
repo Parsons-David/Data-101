@@ -7,31 +7,227 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+options(scipen=999)
 ```
 
-## R Markdown
+---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
+
+---
+
+## Introduction
+
+This investigation is in response to a course assignment for my CS 142 class. We we're provided with a synthetic data set that had artificial patterns created with in it for us to find.
+
+## The Data
+
+Data Provided by Professor Imenlinski as part of a CS 142 Assignment.
 
 ```{r The Data}
 census <- read.csv("CENSUSNEW.csv")
 summary(census)
 ```
 
-## Including Plots
+Each data point was representative of a single person and how they fit into the following:
 
-You can also embed plots, for example:
+    age
+    status - empolyeement
+    education - education level
+    years - work experience
+    profession - current career
+    capital gains
+    capital loss
+    native - country
+    elements - "signs"
+    
+I did some initial set creation so I could more easily iterate over the categories of the data frame. This came in handy later when created my own functions and used for-each loops to create lots of plots with little repetition on my part.
 
-```{r pressure, echo=FALSE}
-plot(census$ELEMENTS, census$AGE, main="Elements vs Age", xlab = "Element", ylab = "Age", col = "orange")
+```{R Initial Set Up}
 
-plot(census$ELEMENTS, census$CAPITALGAINS, main="Elements vs Captial Gains", xlab = "Element", ylab = "Capital Gains", col = "darkgreen")
-
-plot(census$ELEMENTS, census$YEARS, main="Elements vs Years", xlab = "Element", ylab = "Year", col = "orange")
-
-plot(census$ELEMENTS, census$CAPITALLOSS, main="Elements vs Captial Losses", xlab = "Element", ylab = "Capital Losses", col = "darkgreen")
+# Creates Dictionary of Numerics
+nums <- c("AGE", "YEARS", "CAPITALNET")
+# Creates Dictionary of Elements
+elems <- levels(census$ELEMENTS)
+# Non Element cats
+cats <- c("AGE", "STATUS", "EDUCATION", "PROFESSION", "NATIVE")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+I also created a new CAPITALNET column, that was representative of the sum of each persons capital gains and capital losses. 
+I found this data point to be more intuitive to work with, and made the data easier to represent & understand.
+
+```{R Capital Manipulations}
+# Creates Net Capital Variable
+census$CAPITALNET = census$CAPITALGAINS - census$CAPITALLOSS
+# Summary with CAPITALNET
+summary(census)
+```
+
+At this point I had the data loaded and ready for analysis.
+
+## Investigation
+
+The following is the step by step thought process I followed in exploring this data set and arriving at the conclusion I did.
+
+### Initial Elemental Plots
+
+I started by plotting elements against each category, as there had been an initial hint that some patterns may lie in the Elements.
+
+
+```{r Elemental Plots, echo=TRUE}
+
+bplotAll <- function(subCat){
+  
+  subCen <- census
+  
+  if(subCat == "NATIVE"){
+  subCen <- subset(subCen, NATIVE != "United-States")
+  }
+  
+  tmpTab <- table(subCen$ELEMENTS, subCen[,subCat])
+
+  barplot(tmpTab, main=c("Elements vs ", subCat), xlab = subCat, ylab = "Count", col = rainbow(4), las = 2, cex.names = 0.75, beside = FALSE, horiz = FALSE)
+}
+
+for(cat in cats){
+  bplotAll(cat)
+}
+
+### NATIVE Plot With US
+
+barplot(tmpTab <- table(census$ELEMENTS, census$NATIVE), main="Elements vs NATIVE (w/US)", xlab = "NATIVE", ylab = "Count", col = rainbow(4), las = 2, cex.names = 0.75, beside = FALSE, horiz = FALSE)
+```
+
+
+But these only revealed to me how much the United States Skewed the Native Data.
+
+### Mean Country Capital by Element 
+
+Then I plotted the mean Capital Net, Gain, and Net for each element by country.
+
+```{R Country Captial by Elem}
+plotBar <- function(e) {
+  subCen <- subset(census, ELEMENTS == e)# & NATIVE != "India")
+  
+  subCen.meanCapG <- tapply(subCen$CAPITALGAINS, subCen$NATIVE, mean)
+  barplot(subCen.meanCapG, las = 2, main=c(e," Captial Gains by Origin Country"), xlab = "Country", ylab = "Gains", col = rainbow(6), las = 2)
+
+  subCen.meanCapL <- tapply(subCen$CAPITALLOSS, subCen$NATIVE, mean)
+  barplot(subCen.meanCapL, las = 2, main=c(e," Captial Loss by Origin Country"), xlab = "Country", ylab = "Loss", col = rainbow(6), las = 2)
+  
+  subCen$CAPITALNET <- (subCen$CAPITALGAINS - subCen$CAPITALLOSS)
+  subCen.meanNet <- tapply(subCen$CAPITALNET, subCen$NATIVE, mean)
+  barplot(subCen.meanNet, las = 2, main=c(e," Net Capital by Origin Country"), xlab = "Country", ylab = "Net", col = rainbow(6), las = 2)
+  
+}
+
+for (elem in elems){
+  plotBar(elem)
+}
+```
+
+A noticed a few small things from these graphs:
+
+    - $150,000+ Mean Net Capital for Thailand Natives with Fire Elements
+    - $120,000+ Mean Net Capital for Nicaragua Natives with Wood Elements
+    - And huge Gains & Losses for India Natives of any elements (resulting in a low net.)
+    
+But otherwise, these graphs revealed revealed very little to me about any advantages as far as element. 
+
+### Net Captial vs Age by Country
+
+My next idea was to plot Net Capital Gains & Age for every country using a scatter plot (Net Capital vs Age).
+
+```{R Country Net Capital Scatters, eval=FALSE, include=FALSE}
+plotScat <- function(e){
+  subCen <- subset(census, NATIVE == e)
+  
+  subCen$CAPITALNET <- (subCen$CAPITALGAINS - subCen$CAPITALLOSS)
+  plot(subCen$CAPITALNET, subCen$AGE, col = rainbow(8), main = c("Net Capital vs Age", e), las = 2, xlab = "Net Capital", ylab = "Age")
+  
+}
+
+for(country in levels(census$NATIVE)){
+  plotScat(country)
+}
+```
+
+There we a lot of graphs created, although some are show below, here are the key take a ways:
+
+    - United States
+        - Almost no Net Loss 
+        - No one over the age of about 40 had over $300,000 
+        - Large concentration of 20-40 year olds with $400,000 to $600,000 
+    - Inida
+        - Large spread of -$200,000 to +$200,000 
+        - Shows explanation of bar graphs from before
+    - Mexico
+        - Moderate Concentraction from $200,000 to $300,000 
+    - All Others
+        - Most had concentrations around $0
+        - Any Positive Means were usually the product of just a few outliers with extreme values
+
+### Heat Maps
+
+I'll admit. I went a little crazy here.
+
+But in my defense I found these heat maps very interesting for detecting little correlations amount all these values.
+
+Most correlations were easily explained by outliers, but some were still somewhat interesting.
+
+```{R Heat Maps, eval=FALSE, include=FALSE}
+
+heatPlot <- function(yAxis, xAxis, heat) {
+  subCen <- subset(census)#, CAPITALNET > 200000)
+  # print(summary(tapply(subCen[,yAxis])))
+  print(ggplot(data = subCen, aes(x = subCen[,xAxis], y = subCen[,yAxis]), las = 2)+ labs(x = xAxis, y = yAxis, las = 2) + geom_tile(aes(fill = census[,heat]))+
+  scale_fill_gradient2(low="darkblue", high="red", guide="colorbar") + theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+}
+for(var in cats){
+  for(val in nums){
+    for(fin in c("ELEMENTS")){
+      heatPlot(var, fin, val)
+    }
+  }
+}
+for(var in cats){
+  for(val in nums){
+    for(fin in cats){
+      heatPlot(var, fin, val)
+    }
+  }
+}
+```
+
+    - France
+        - France & Fire - Very high Net Capital
+        - France & ? – Similar very high Net Capital
+        - This is easily attributed to a single person skewing the mean.
+    - 9th Grade Education & Fire
+        - Very high mean Net Capital for Fire Element respondents who dropped out in 9th grade  
+        - Similar story with single skew
+
+## Notes and Comments
+
+I was a little less excited/interested with this Data set than my previous attempt at Data Analysis.
+
+A lot of the analysis felt forced, since I knew there was something that I was supposed to be looking for.
+
+That being said I was proud of the methods that I wrote, that combined with the category sets, made it really quick and easy to plot lots of different categories against each other. The programming style reminded me a a mix between JavaScript and Python.
+
+In the future I'd like to focus more on creating more compact/cleaner heat maps that more intuitively convey data patterns.
+
+I look forward to furthering my Data Analysis skills on my next project.
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
