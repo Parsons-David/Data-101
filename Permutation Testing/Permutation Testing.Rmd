@@ -7,9 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# # library(ggplot2)
-# install.packages("devtools")
-devtools::install_github("devanshagr/PermutationTestSecond")
+# # # library(ggplot2)
+# install.packages("devtools", )
+# devtools::install_github("devanshagr/PermutationTestSecond")
 options(scipen=999)
 ```
 
@@ -42,8 +42,8 @@ I did some initial set creation so I could more easily iterate over the categori
 
 ```{R Initial Set Up}
 
-census[, 11] <- ""
-colnames(census)[11] <- "isDoc"
+census[, 10] <- ""
+colnames(census)[10] <- "isDoc"
 census$isDoc <- (census$EDUCATION == "Doctorate")
 
 # Creates Dictionary of Numerics

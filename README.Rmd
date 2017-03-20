@@ -39,6 +39,10 @@ Attempt at pattern Recognition using Heat Maps & Various other plots.
 
 2nd and more nuanced attempt at pattern Recognition using Heat Maps & Various other plots.
 
+### [Permutation Testing](Permutation_Testing.html)
+
+Testing assumptions and hypthoses made during the Census Investigation using permuation testing.
+
 ---
 
 [Github Repo](https://github.com/Parsons-David/Data-Exploration) - Repository of all code, data, and other resources with to create this homepage and all of the projects.
