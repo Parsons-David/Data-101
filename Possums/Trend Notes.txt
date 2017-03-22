@@ -1,0 +1,15 @@
+commons <- c("belly", "chest", "footlgth", "totlgth", "skullw", "hdlngth")
+Linear Trend for the following
+belly v common
+chest v common
+footlgth v common
+totlngth v common
+hdlngth v common
+
+Ear Conch Groups
+
+Age pyramid
+
+Females Bigger?
+  Longer Really
+  And older
