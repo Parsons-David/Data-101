@@ -1,0 +1,178 @@
+---
+title: "Walmart"
+author: "David Parsons"
+date: "March 24, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+# install.packages("devtools")
+# devtools::install_github("devanshagr/PermutationTestSecond")
+options(scipen=999)
+```
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
+
+## Introduction
+
+This data set was chosen by my friend, and was cited as the most interesting of the data sets that they had to choose from. I also have never thought that much about possums, so I figured it might be interesting to learn some more about them.
+
+## The Data
+
+Data Collected from https://vincentarelbundock.github.io/Rdatasets/datasets.html, a repo of random data sets. This data set had been curated as a part of a research study on the morphological variation of 104 mountain brushtail possums, trapped at seven sites from Southern Victoria to central Queensland.
+
+```{r Data}
+wal <- read.csv("WALMART.csv")
+summary(wal)
+cols <- colnames(wal)
+```
+
+Each row of Walmart.csv contains one customer trasaction which is represented as binary vector (treat this as NUM values). 1 means that customer bought an item, 0 - means that customer did not but that item. 
+
+I know nothing about possums besides the normal stereotypical Hollywood persona, so I'm interested to see what I learn from looking at these animals in a more complex manner.
+
+## Helper Funtions
+
+```{r Helper Functions}
+ands <- data.frame(cols)
+
+allCols <- c()
+for(c in cols){
+  newCol <- c()
+  for(x in cols){
+    subwal <- subset(wal, wal[,c] == 1)
+    subwal <- subset(subwal, subwal[,x] == 1)
+    # print(c(x, " & ", c, " -> ", nrow(subwal)))
+    newCol <- c(newCol, nrow(subwal))
+  }
+  # print(newCol)
+  ands[, c] <- newCol
+  allCols <- c(allCols, newCol)
+}
+
+probs <- data.frame(cols)
+
+
+getChange <- function(x, c, frame){
+    subframe <- subset(frame, frame[,c] == 1)
+    subframe <- subset(subframe, subframe[,x] == 1)
+    # print(c(x, " & ", c, " -> ", nrow(subframe)))
+    tot <- nrow(frame)
+    # P(X & C)
+    numBoth <- nrow(subframe)
+    probBoth <- 100 * (numBoth / tot)
+    # P(C)
+    numC <- nrow(subset(frame, frame[,c] == 1))
+    probC <- 100 * (numC / tot)
+    # P(X | C)
+    probXgC <- 100 * (probBoth / probC)
+    # P(X)
+    numX <- nrow(subset(frame, frame[,x] == 1))
+    probX <- 100 * (numX / tot)
+    # Change P(X | C) - P(X)
+    change = probXgC - probX
+    return(change)
+}
+
+allCols <- c()
+for(c in cols){
+  newCol <- c()
+  for(x in cols){
+    change <- getChange(x, c, wal)
+    newCol <- c(newCol, change)
+  }
+  # print(newCol)
+  probs[, c] <- newCol
+  allCols <- c(allCols, newCol)
+}
+pairs <- ""
+for(c in cols){
+  for(x in cols){
+    if(x != c){
+      change <- round(getChange(x, c, wal), digits = 2)
+      if(change > 1){
+        pVal <- PermutationTestSecond::Permutation(wal, c, x,10000,0, 1)
+        pairs <- c(pairs, c(x, c))
+        incDec <- if(change > 0) "increase" else "decrease"
+        cat(paste(change, "% ", incDec," in probability of buying ", x, " if they bought ", c, "\n\tWith a P-Value of: ", pVal, "\n"))
+      }
+    }
+  }
+}
+
+```
+
+## Investigation
+
+The following is the step by step thought process I followed in exploring this data set and arriving at the conclusion I did.
+
+### Scatter Plots
+
+I started by plotting every column against every other column in an effort to visual the data and make it easier to confirm any biases or recognize any unique patterns. I don't recommend running this code on your computer, especially if it is under powered.
+
+```{r P-Testing}
+
+```
+From this I produced the following observation notes:
+
+    commons <- c("belly", "chest", "footlgth", "totlgth", "skullw", "hdlngth")
+    Linear Trend for the following
+    belly v common
+    chest v common
+    footlgth v common
+    totlngth v common
+    hdlngth v common
+
+    Ear Conch Groups
+
+    Age pyramid
+
+    Females Bigger?
+      Longer Really
+      And older
+
+## Trend Investitgation
+
+No that I have made some observations, I think its best to focus on each one, analyze it alone and determine if it's believable or not.
+
+### Trend 1 - The Linear Commons
+
+The commons were coined during my investigation, because any common plotted against any other common yielded similar linear distributions.
+
+The commons consist of belly, chest, footlgth, totlgth, skullw, and hdlngth.
+
+```{r The Commons}
+
+```
+
+
+## Conclusion
+
+This analysis didn't provide me with any eye opening information about Common Bushtail Possums in general. And given that this data came from a select sampled population of the species in a specific location, that isn't very surprising.
+
+But this data shows a few interesting things about the species relative to the area where this data was sampled.
+
+There appears to be predominately two types of possums in the area, categorized by their ear conch length. Some further investigation may show the reason why this might be the case.
+
+It also appears that female possums may defy their typical gender roles in this area, signaling that either the culture in the area is quite progressive, or that the data is biased. 
+
+And the effects that time has on the physical statures of possums might also be an interesting area of inquiry as it appears that possums start to shrink as they get older.
+
+## Notes and Comments
+
+While I didn't start this project thinking that I would conduct it on possums, and have enjoyed working with this data. In my only other previous work with a real world data set, I worked on relationships that were still relatively theoretical, but with this data set I found myself thinking about possums a lot and the habits that might produce the results I was coming across. This type of imagery grasped my interest as I worked, but may have influenced my analysis. 
+
+This was also the first time I used p-testing on real data. I really appreciate this method of challenging hypothesis that are presented, as it only opened more doors of exploration, rather than shutting them down by just assuming that I was correct.
+
+I hope that in future explorations I can do my analysis and testing more efficiently and potentially generate some strong real world arguments, and who knows, maybe I'll do it on possums again.
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
