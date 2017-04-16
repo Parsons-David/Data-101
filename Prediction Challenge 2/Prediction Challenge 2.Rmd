@@ -1,0 +1,246 @@
+---
+title: "Prediction Challenge 2"
+author: "David Parsons"
+date: "April 11, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("rpart")
+# install.packages("rpart.plot")
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+options(scipen=999)
+```
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
+
+---
+
+## Introduction
+
+This investigation is in response to a course assignment for my CS 142 class. We we're provided with a synthetic data set that had artificial patterns created with in it for us to find.
+
+## The Data
+
+Data Provided by Professor Imenlinski as part of a CS 142 Assignment.
+
+```{r The Data}
+train <- read.csv("M2017_train.csv")
+out <- read.csv("M2017_test_students.csv")
+
+print(summary(train))
+```
+
+
+
+```{r Adding data}
+
+predict <- rpart(GRADE ~ SCORE+ASKS_QUESTIONS+LEAVES_EARLY+PARTICIPATION,data=train, minsplit = 50, cp=0.03)
+summary(predict)
+
+rpart.plot(predict)
+
+test.tree <- predict(predict,newdata=train, type="class")
+
+mean(train$GRADE == test.tree)
+
+out.tree <- predict(predict,newdata=out, type="class")
+
+submission<-read.csv("M2017_sample_submission.csv")
+submission$GRADE<-out.tree
+write.csv(submission, 'submission.csv', row.names= FALSE)
+
+
+
+# library(rpart.plot)
+# rpart.plot(predict)
+
+# train[,7] <- ""
+# colnames(train)[7] <- "GRADELEVEL"
+# train$GRADELEVEL <- as.numeric(0)
+# train$GRADELEVEL[train$GRADE == "A"] <- as.numeric(5) 
+# train$GRADELEVEL[train$GRADE == "B"] <- as.numeric(4) 
+# train$GRADELEVEL[train$GRADE == "C"] <- as.numeric(3) 
+# train$GRADELEVEL[train$GRADE == "D"] <- as.numeric(2) 
+# train$GRADELEVEL[train$GRADE == "F"] <- as.numeric(1) 
+# 
+# train[,8] <- ""
+# colnames(train)[8] <- "SCORELEVEL"
+# train$SCORELEVEL <- cut(train$SCORE, 10, c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+# 
+# train[,9] <- ""
+# colnames(train)[9] <- "IDLEVEL"
+# train$IDLEVEL <- cut(train$STUDENTID, 10, c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"))
+# 
+# vars = colnames(train)
+# 
+# summary(train)
+
+```
+
+Each data point was representative of a single person and how they fit into the following:
+
+    StudentID (unique ID)
+    Score (0 - 100)
+    Grade (A - F)
+    Asks Questions (Always, Never, Sometimes)
+    Leaves Early (Always, Never, Rarely)
+    Participation (0 - 1)
+
+
+## Investigation
+
+The following is the step by step thought process I followed in exploring this data set and arriving at the conclusion I did.
+
+### Happiness, Income, & Age
+
+I started by creating a scatter plot of each respondents Happiness against both Income and Age
+
+
+```{r Simple Plots}
+
+
+
+# scatPlot <- function(x, y, frm){
+#   
+#   title = paste(x,y, sep = " vs ")
+#   plot(frm[,x], frm[,y], col = rainbow(8), main = title, las = 2, xlab = x, ylab = y)
+# }
+# 
+# heatPlot <- function(frm, yAxis, xAxis, heat) {
+#   subCen <- subset(frm)
+#   print(ggplot(data = subCen, aes(x = subCen[,xAxis], y = subCen[,yAxis]), las = 2)+ labs(x = xAxis, y = yAxis, las = 2) + geom_tile(aes(fill = subCen[,heat]))+
+#           scale_fill_gradient2(low="darkblue", high="red", guide="colorbar") + theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+# }
+# 
+# t <- subset(train, train$GRADE == "D")
+# 
+# for(v in vars){
+#   print(v) 
+#   barplot(height=table(t[,v]))
+# }
+# 
+# t <- train
+# 
+# c <- "SCORELEVEL"
+# for(v in vars){
+#   if(c != v){
+#     scatPlot(c, v, t)
+#   }
+# }
+# 
+# c <- "SCORELEVEL"
+# for(v in vars){
+#   # if(c != v){
+#     heatPlot(t, c, v, "GRADELEVEL")
+#   # }
+# }
+
+```
+
+
+Age vs Happiness revealed no correlations, Age appears to have no direct effect upon a person's happiness.
+
+But Income vs Happiness shows clear increase in happiness as income increases.
+
+### Income & Happiness "Classes"
+
+Now I wanted to define what Ranges or classes exist within Happiness and Income.
+
+```{r Score Changer}
+
+# 
+# train[,10] <- ""
+# colnames(train)[10] <- "FSCORE"
+# train$FSCORE <- 0
+# 
+# train$FSCORE[train$PARTICIPATION > 0.5] <- (train$FSCORE[train$PARTICIPATION > 0.5]) + 2
+# 
+# train$FSCORE[train$ASKS_QUESTIONS == "always"] <- (train$FSCORE[train$ASKS_QUESTIONS == "always"]) + 1
+# 
+# train$FSCORE[train$LEAVES_EARLY == "never"] <- (train$FSCORE[train$LEAVES_EARLY == "never"]) + 1
+# 
+# train$FSCORE[train$SCORE > 80] <- train$FSCORE[train$SCORE > 80] + 3
+# train$FSCORE[train$SCORE > 60] <- train$FSCORE[train$SCORE > 60] + 2
+# train$FSCORE[train$SCORE > 40] <- train$FSCORE[train$SCORE > 40] + 1
+# train$FSCORE[train$SCORE > 20] <- train$FSCORE[train$SCORE > 20] + 2
+# 
+# summary(train)
+# 
+# train[,11] <- ""
+# colnames(train)[11] <- "NGRADE"
+# train$NGRADE <- "F"
+# train$NGRADE[train$FSCORE > 2] <- "D"
+# train$NGRADE[train$FSCORE > 4] <- "C"
+# train$NGRADE[train$FSCORE > 6] <- "B"
+# train$NGRADE[train$FSCORE > 8] <- "A"
+# 
+# train[,12] <- ""
+# colnames(train)[12] <- "SAME"
+# train$SAME <- "False"
+# train$SAME[train$GRADE == train$NGRADE] <- "True"
+
+
+
+```
+
+### Output
+
+```{r Output}
+out <- read.csv("M2017_test_students.csv")
+
+out[,6] <- ""
+colnames(out)[6] <- "FSCORE"
+out$FSCORE <- 0
+
+out$FSCORE[out$PARTICIPATION > 0.5] <- (out$FSCORE[out$PARTICIPATION > 0.5]) + 2
+
+out$FSCORE[out$ASKS_QUESTIONS == "always"] <- (out$FSCORE[out$ASKS_QUESTIONS == "always"]) + 1
+
+out$FSCORE[out$LEAVES_EARLY == "never"] <- (out$FSCORE[out$LEAVES_EARLY == "never"]) + 1
+
+out$FSCORE[out$SCORE > 80] <- out$FSCORE[out$SCORE > 80] + 3
+out$FSCORE[out$SCORE > 60] <- out$FSCORE[out$SCORE > 60] + 2
+out$FSCORE[out$SCORE > 40] <- out$FSCORE[out$SCORE > 40] + 1
+out$FSCORE[out$SCORE > 20] <- out$FSCORE[out$SCORE > 20] + 2
+
+
+out[,7] <- ""
+colnames(out)[7] <- "GRADE"
+out$GRADE <- "F"
+out$GRADE[out$FSCORE > 2] <- "D"
+out$GRADE[out$FSCORE > 4] <- "C"
+out$GRADE[out$FSCORE > 6] <- "B"
+out$GRADE[out$FSCORE > 8] <- "A"
+
+# TO File
+
+
+```
+
+## Notes and Comments
+
+This attempt went much more smoothly. I've begun to get a better grasp on how to approach analyzing a data set, and have made use of functions and loops to increase my plot speed.
+
+I felt I over thought the last analysis, so I went with a more direct approach this time, and it worked out.
+
+But I think that because this is a synthetic data set, it was easier to over think the analysis. So I look forward to dealing with more random/real world data sets in the future.
+
+Our next project won't involve a synthetic data set, so I look forward to the new challenges that the next step in analysis presents.
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
