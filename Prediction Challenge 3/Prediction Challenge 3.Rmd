@@ -1,0 +1,97 @@
+---
+title: "Prediction Challenge 3"
+author: "David Parsons"
+date: "April 16, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("rpart")
+# install.packages("rpart.plot")
+# install.packages("e1071")
+install.packages("devtools")
+devtools::install_github("devanshagr/CrossValidation")
+library(rpart)
+library(rpart.plot)
+options(scipen=999)
+```
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
+
+---
+
+## Introduction
+
+This investigation is in response to a course assignment for my CS 142 class. We we're provided with a synthetic data set that had artificial patterns created with in it for us to find.
+
+## The Data
+
+Data Provided by Professor Imenlinski as part of a CS 142 Assignment.
+
+```{r The Data}
+input <- read.csv("Marriage_training.csv")
+test <- read.csv("Marriage_testing_students1.csv")
+
+print(summary(train))
+```
+
+```{r rPart & Cross Validation}
+
+# Partition Data
+train <- input[1:349,]
+val <- input[350:750,]
+
+# Creating Prediction Tree
+tree <- rpart(STATUS ~ (Joint.Income+(GroomPersonality==BridePersonality)+(GroomAge<BrideAge)+(GroomAge==BrideAge)), control = rpart.control(minsplit = 5), data = train)
+
+summary(tree)
+rpart.plot(tree)
+
+test.tree <- predict(tree, newdata=val, type="class")
+mean(val$STATUS == test.tree)
+
+# Validation Testing
+CrossValidation::cross_validate(val, tree, 1000, 0.5)
+
+# Prediction with test data
+test_predict <- predict(tree, newdata = test, type = "class")
+summary(test_predict)
+
+
+```
+
+### Output
+
+```{r Output}
+
+# To File
+submission<-read.csv("Marriage_sample.csv")
+submission$STATUS<-test_predict
+write.csv(submission, 'submission.csv', row.names= FALSE)
+
+```
+
+## Notes and Comments
+
+This attempt went much more smoothly. I've begun to get a better grasp on how to approach analyzing a data set, and have made use of functions and loops to increase my plot speed.
+
+I felt I over thought the last analysis, so I went with a more direct approach this time, and it worked out.
+
+But I think that because this is a synthetic data set, it was easier to over think the analysis. So I look forward to dealing with more random/real world data sets in the future.
+
+Our next project won't involve a synthetic data set, so I look forward to the new challenges that the next step in analysis presents.
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
