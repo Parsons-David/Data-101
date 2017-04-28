@@ -1,0 +1,157 @@
+---
+title: "Prediction Challenge 5"
+author: "David Parsons"
+date: "April 25, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("rpart")
+# install.packages("rpart.plot")
+# install.packages("e1071")
+# install.packages("devtools")
+# devtools::install_github("devanshagr/CrossValidation")
+library(rpart)
+library(rpart.plot)
+options(scipen=999)
+```
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
+
+---
+
+## Introduction
+
+This investigation is in response to a course assignment for my CS 142 class. We we're provided with a synthetic data set that had artificial patterns created with in it for us to find.
+
+## The Data
+
+Data Provided by Professor Imenlinski as part of a CS 142 Assignment.
+
+```{r The Data}
+input <- read.csv("P5_train1.csv")
+# input <- subset(input, input$Source != "Directlink")
+# test <- read.csv("Marriage_testing_students1.csv")
+partitionData <- function(){
+  samp.total <- sample(nrow(input), 4488, replace = FALSE)
+  samp.train <- sample(nrow(input), 1795, replace = FALSE)
+  samp.test <- sample(nrow(input[setdiff(samp.total, samp.train),]), 2244, replace = FALSE)
+  
+  train <- input[samp.train,] # random 40% of data
+  test <- input[samp.test,] # random 50% of data
+}
+print(summary(input))
+```
+
+```{r rPart & Cross Validation}
+
+MSE <- 100
+for(j in c(3:17)){
+  MSE <- 100
+    
+  tree.lm <- lm(Revenue ~ ., data = input)
+  for(i in c(1:5000)){
+    samp.total <- sample(nrow(input), 4950, replace = FALSE)
+    samp.train <- sample(nrow(input), (4950 * (j/20)), replace = FALSE)
+    samp.test <- sample(nrow(input[setdiff(samp.total, samp.train),]), (4950 * ((18 - j + 1)/20)), replace = FALSE)
+    
+    train <- input[samp.train,] # random 40% of data
+    test <- input[samp.test,] # random 50% of data
+    
+    tmpTree.lm <- lm(Revenue ~ ., data = train)
+    
+    # summary(tree)
+    # rpart.plot(tree)
+    
+    outVec <- predict(tmpTree.lm, newdata=test)
+    # mean(test$Revenue == test.tree)
+    
+    tmpMSE <- mean((outVec - test$Revenue)^2)
+    
+    if(tmpMSE < MSE){
+      MSE <- tmpMSE
+      tree.lm <- tmpTree.lm
+    }
+    
+  }
+  print(paste("Train:", (j/20), "Test:", ((18 - j)/20), " -> ", MSE))
+  # plot(tree.lm)
+}
+
+# Prediction with test data
+# test_predict <- predict(tree, newdata = test, type = "class")
+# summary(test_predict)
+
+
+```
+
+### Output
+
+```{r Output}
+
+MSE <- 100
+
+tree.lm <- lm(Revenue ~ ., data = input)
+for(i in c(1:100000)){
+  samp.total <- sample(nrow(input), 4950, replace = FALSE)
+  samp.train <- sample(nrow(input), (4950 * 0.65), replace = FALSE)
+  samp.test <- sample(nrow(input[setdiff(samp.total, samp.train),]), (4950 * 0.25), replace = FALSE)
+  
+  train <- input[samp.train,] # random 40% of data
+  test <- input[samp.test,] # random 50% of data
+  
+  tmpTree.lm <- lm(Revenue ~ ., data = train)
+  
+  # summary(tree)
+  # rpart.plot(tree)
+  
+  outVec <- predict(tmpTree.lm, newdata=test)
+  outVec[outVec < 0] <- 0
+  # mean(test$Revenue == test.tree)
+  
+  tmpMSE <- mean((outVec - test$Revenue)^2)
+  
+  if(tmpMSE < MSE){
+    MSE <- tmpMSE
+    tree.lm <- tmpTree.lm
+  }
+
+}
+print(MSE)
+
+# Predicting on Real Data
+data <- read.csv("P5_test_students.csv")
+finalVec <- predict(tree.lm, newdata = data)
+finalVec[finalVec < 0] <- 0
+
+# To File
+submission<-read.csv("P5_sample.csv")
+submission$Revenue <- finalVec
+write.csv(submission, 'submission.csv', row.names= FALSE)
+
+```
+
+## Notes and Comments
+
+This attempt went much more smoothly. I've begun to get a better grasp on how to approach analyzing a data set, and have made use of functions and loops to increase my plot speed.
+
+I felt I over thought the last analysis, so I went with a more direct approach this time, and it worked out.
+
+But I think that because this is a synthetic data set, it was easier to over think the analysis. So I look forward to dealing with more random/real world data sets in the future.
+
+Our next project won't involve a synthetic data set, so I look forward to the new challenges that the next step in analysis presents.
+
+---
+
+[Rutgers Data 101 Blog](http://data101.cs.rutgers.edu/?q=blog)
+
+[My Data Exploration Homepage](home.html)
+
+[Rutgers Data 101 Homepage](http://data101.cs.rutgers.edu/)
